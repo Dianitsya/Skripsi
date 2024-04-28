@@ -17,7 +17,6 @@ class TodoController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        // dd($todos);
         $todosCompleted = Todo::where('user_id', auth()->user()->id)
             ->where('is_complete', true)
             ->count();
