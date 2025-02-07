@@ -8,103 +8,63 @@ use Illuminate\Http\Request;
 class UserController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Menampilkan daftar pengguna.
      */
     public function index()
     {
         $search = request('search');
-        if ($search) {
-            $users = User::where(function ($query) use ($search) {
-                $query->where('name', 'like', '%' . $search . '%')->orWhere('email', 'like', '%' . $search . '%');
-            })
-                ->orderBy('name')
-                ->where('id', '!=', '1')
-                ->paginate(20)
-                ->withQueryString();
-        } else {
-            $users = User::where('id', '!=', '1')
-                ->orderBy('name')
-                ->paginate(10);
+
+        $users = User::when($search, function ($query, $search) {
+            $query->where('name', 'like', '%' . $search . '%')
+                  ->orWhere('email', 'like', '%' . $search . '%');
+        })
+        ->orderBy('name')
+        ->where('id', '!=', 1)
+        ->paginate(10)
+        ->withQueryString();
+
+        // Update perhitungan total berdasarkan kolom yang digunakan
+        $totalUsers = User::count();
+        $totalAdmins = User::where('is_admin', true)->count();
+        // ATAU
+        // $totalAdmins = User::where('role', 'admin')->count();
+        $totalReguler = $totalUsers - $totalAdmins;
+        return view('user.index', compact('users', 'totalUsers', 'totalAdmins', 'totalReguler'));
+    }
+
+    public function makeAdmin(User $user)
+    {
+        $user->update(['is_admin' => true]);
+        // ATAU
+        // $user->update(['role' => 'admin']);
+
+        return redirect()->back()->with('success', 'User has been promoted to Admin.');
+    }
+
+    public function removeAdmin(User $user)
+    {
+        if ($user->id === 1) {
+            return redirect()->back()->with('error', 'Cannot remove Admin rights from Super Admin.');
         }
-        return view('user.index', compact('users'));
-    }
 
-    public function makeadmin(User $user)
-    {
-        $user->timestamps = false;
-        $user->is_admin = true;
-        $user->save();
+        $user->update(['is_admin' => false]);
+        // ATAU
+        // $user->update(['role' => 'user']);
 
-        return back()->with('success', 'Make admin successfully!');
-    }
-
-    public function removeadmin(User $user)
-    {
-        if ($user->id != 1) {
-            $user->timestamps = false;
-            $user->is_admin = false;
-            $user->save();
-
-            return back()->with('success', 'Remove admin successfully!');
-        } else {
-            return redirect()->route('user.index');
-        }
-    }
-
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        return redirect()->back()->with('success', 'Admin rights removed from user.');
     }
 
     /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(User $user)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(User $user)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, User $user)
-    {
-        //
-    }
-
-
-
-    /**
-     * Remove the specified resource from storage.
+     * Menghapus akun pengguna.
      */
     public function destroy(User $user)
     {
-        if ($user->id != 1) {
-            $user->delete();
-
-            return back()->with('success', 'Delete user successfully!');
-        } else {
-            return redirect()->route('user.index')->with('danger', 'Delete user failed!');
+        if ($user->id === 1) {
+            return redirect()->back()->with('error', 'Cannot delete the Super Admin.');
         }
+
+        $user->delete();
+
+        return redirect()->back()->with('success', 'User deleted successfully.');
     }
 }

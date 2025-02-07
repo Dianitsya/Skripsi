@@ -21,6 +21,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'is_admin',
     ];
 
     /**
@@ -45,4 +46,10 @@ class User extends Authenticatable
     public function todos(){
         return $this->hasMany(Todo:: class);
     }
+    public function isAdmin()
+{
+    return $this->is_admin === true;  // jika menggunakan is_admin
+    // ATAU
+    // return $this->role === 'admin';  // jika menggunakan role
+}
 }

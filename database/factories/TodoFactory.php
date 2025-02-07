@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use Illuminate\Foundation\Auth\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -15,12 +16,12 @@ class TodoFactory extends Factory
      * @return array<string, mixed>
      */
     public function definition(): array
-    {
-        return [
-            'user_id' => rand(1,100),
-            'title' => ucwords(fake()->sentence()),
-            'is_complete' => rand(0,1)
-
-        ];
-    }
+{
+    return [
+        'user_id' => User::inRandomOrder()->first()->id,  // atau
+        // 'user_id' => fake()->numberBetween(1, 102),  // karena total user ada 102
+        'title' => fake()->sentence(),
+        'is_complete' => fake()->boolean(),
+    ];
+}
 }

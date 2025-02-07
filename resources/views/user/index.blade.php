@@ -1,134 +1,130 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200">
-            {{ __('User') }}
-        </h2>
-    </x-slot>
+@extends('layouts.app')
 
+@section('header')
+    <h2 class="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200">
+        {{ __('User Analysis') }}
+    </h2>
+@endsection
+
+@section('content')
     <div class="py-12">
         <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
             <div class="overflow-hidden bg-white shadow-sm dark:bg-gray-800 sm:rounded-lg">
-                <div class="px-6 pt-6 mb-5 md:w-1/2 2x1:w-1/3">
-                    @if (request('search'))
-                        <h2 class="pb-3 text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200">
-                            Search results for: {{ request('search') }}
-                        </h2>
-                    @endif
-                    <form class="flex items-center gap-2">
-                        <x-text-input id="search" name="search" type="text" class="w-full"
-                            placeholder="Search by name or email..." value="{{ request('search') }}" autofocus />
-                        <x-primary-button type="submit">
-                            {{ __('Search') }}
-                        </x-primary-button>
-                    </form>
-                </div>
-                <div class="px-6 text-xl text-gray-900 dark:text-gray-100">
-                    <div class="flex items-center justify-between">
-                        <div></div>
-                        <div>
-                            @if (session('success'))
-                                <p x-data="{ show: true }" x-show="show" x-transition x-init="setTimeout(() => show = false, 5000)"
-                                    class="pb-3 text-sm text-green-600 dark:text-green-400">{{ session('success') }}
-                                </p>
-                            @endif
-                            @if (session('danger'))
-                                <p x-data="{ show: true }" x-show="show" x-transition x-init="setTimeout(() => show = false, 5000)"
-                                    class="pb-3 text-sm text-red-600 dark:text-red-400">{{ session('danger') }}
-                                </p>
-                            @endif
-                        </div>
-                    </div>
-                </div>
-                <div class="relative overflow-x-auto">
-                    <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-                        <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                            <tr>
-                                <th scope="col" class="px-6 py-3">Id</th>
-                                <th scope="col" class="px-6 py-3">Name</th>
-                                <th scope="col" class="hidden px-6 py-3 md:block">Email</th>
-                                <th scope="col" class="px-6 py-3">Todo</th>
-                                <th scope="col" class="px-6 py-3">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse ($users as $user)
-                                <tr
-                                    class="{{ $loop->odd ? 'odd:bg-white odd:dark:bg-gray-800' : 'even:bg-gray-50 even:dark:bg-gray-700' }}">
-                                    <td scope="row"
-                                        class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                        <p>{{ $user->id }}</p>
-                                    </td>
-                                    <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                        <p>{{ $user->name }}</p>
-                                    </td>
-                                    <td class="hidden px-6 py-4 md:block">
-                                        <p>{{ $user->email }}</p>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <p>{{ $user->todos->count() }}
-                                            <span>
-                                                <span class="text-green-600 dark:text-green-400">
-                                                    {{ $user->todos->where('is_complete', true)->count() }}
-                                                </span>
-                                                <span class="text-blue-600 dark:text-blue-400">
-                                                    {{ $user->todos->where('is_complete', false)->count() }}
-                                                </span>
-                                            </span>
-                                        </p>
-                                    </td>
+                <div class="p-6 text-gray-900 dark:text-gray-100">
 
-                                    <td class="px-6 py-4">
-                                        <div class="flex space-x-3">
-                                            {{-- Action Here --}}
-                                            @if ($user->is_admin)
-                                                <form action="{{ route('user.removeadmin', $user) }}" method="Post">
-                                                    @csrf
-                                                    @method('PATCH')
-                                                    <button type="submit"
-                                                        class="text-blue-600 dark:text-blue-400 whitespace-nowrap">
-                                                        Remove Admin
-                                                    </button>
-                                                </form>
-                                            @else
-                                                <form action="{{ route('user.makeadmin', $user) }}" method="Post">
-                                                    @csrf
-                                                    @method('PATCH')
-                                                    <button type="submit"
-                                                        class="text-red-600 dark:text-red-400 whitespace-nowrap">
-                                                        Make Admin
-                                                    </button>
-                                                </form>
-                                            @endif
-                                            <form action="{{ route('user.destroy', $user) }}" method="Post">
-                                                @csrf
-                                                @method('delete')
-                                                <button type="submit"
-                                                    class="text-red-600 dark:text-red-400 whitespace-nowrap">
-                                                    Delete
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </td>
+                    {{-- Tabel Statistik User --}}
+                    <div class="mb-6">
+                        <h3 class="mb-3 text-lg font-semibold text-gray-800 dark:text-gray-200">User Statistics</h3>
+                        <table class="w-full text-sm text-center text-gray-500 border border-gray-300 dark:text-gray-400 dark:border-gray-600">
+                            <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                                <tr>
+                                    <th class="px-6 py-3 border">Total Users</th>
+                                    <th class="px-6 py-3 border">Total Admins</th>
+                                    <th class="px-6 py-3 border">Total Regular Users</th>
                                 </tr>
-                            @empty
+                            </thead>
+                            <tbody>
                                 <tr class="bg-white dark:bg-gray-800">
-                                    <td scope="row" class="px-6 py-4 font-medium text-gray-900 dark:text-white">
-                                        Empty
-                                    </td>
+                                    <td class="px-6 py-4 font-medium text-gray-900 border dark:text-white">{{ $totalUsers }}</td>
+                                    <td class="px-6 py-4 font-medium text-gray-900 border dark:text-white">{{ $totalAdmins }}</td>
+                                    <td class="px-6 py-4 font-medium text-gray-900 border dark:text-white">{{ $totalReguler }}</td>
                                 </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-                @if ($users->hasPages())
-                    <div class="p-6">
-                        {{ $users->links() }}
+                            </tbody>
+                        </table>
                     </div>
-                @endif
-                {{-- <div class="p-6 text-gray-900 dark:text-gray-100">
-                    {{ __("Index User Page") }}
-                </div> --}}
+
+                    {{-- Form Pencarian --}}
+                    <div class="mb-6">
+                        <form method="GET" action="{{ route('user.index') }}" class="flex items-center space-x-2">
+                            <input
+                                type="text"
+                                name="search"
+                                value="{{ request('search') }}"
+                                placeholder="Search users..."
+                                class="w-full px-4 py-2 border rounded-lg dark:bg-gray-700 dark:text-white focus:ring focus:ring-blue-300"
+                            >
+                            <button type="submit" class="px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700">
+                                Search
+                            </button>
+                        </form>
+                    </div>
+
+                    {{-- Tabel Detail User dan Todos --}}
+                    <div class="relative overflow-x-auto">
+                        <h3 class="mb-3 text-lg font-semibold text-gray-800 dark:text-gray-200">User & Todo Details</h3>
+                        <table class="w-full text-sm text-left text-gray-500 border border-gray-300 dark:text-gray-400 dark:border-gray-600">
+                            <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                                <tr>
+                                    <th class="px-6 py-3 border">ID</th>
+                                    <th class="px-6 py-3 border">Name</th>
+                                    <th class="hidden px-6 py-3 border md:table-cell">Email</th>
+                                    <th class="px-6 py-3 border">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse ($users as $user)
+                                    <tr class="{{ $loop->odd ? 'bg-white dark:bg-gray-800' : 'bg-gray-50 dark:bg-gray-700' }}">
+                                        <td class="px-6 py-4 font-medium text-gray-900 border dark:text-white">{{ $user->id }}</td>
+                                        <td class="px-6 py-4 font-medium text-gray-900 border dark:text-white">{{ $user->name }}</td>
+                                        <td class="hidden px-6 py-4 border md:table-cell">{{ $user->email }}</td>
+                                        <td class="px-6 py-4 text-center border">
+                                            <div class="flex items-center space-x-2">
+
+                                                {{-- Button Make/Remove Admin --}}
+                                                @if ($user->is_admin)
+                                                    <form action="{{ route('user.removeadmin', $user) }}" method="POST">
+                                                        @csrf
+                                                        @method('PATCH')
+                                                        <button type="submit"
+                                                            class="px-4 py-2 text-white bg-red-600 rounded-lg hover:bg-red-700">
+                                                            Remove Admin
+                                                        </button>
+                                                    </form>
+                                                @else
+                                                    <form action="{{ route('user.makeadmin', $user) }}" method="POST">
+                                                        @csrf
+                                                        @method('PATCH')
+                                                        <button type="submit"
+                                                            class="px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700">
+                                                            Make Admin
+                                                        </button>
+                                                    </form>
+                                                @endif
+
+                                                {{-- Button Delete User --}}
+                                                <form action="{{ route('user.destroy', $user) }}" method="POST"
+                                                    onsubmit="return confirm('Are you sure you want to delete this user?');">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit"
+                                                        class="px-4 py-2 text-white bg-red-600 rounded-lg hover:bg-red-700">
+                                                        Delete
+                                                    </button>
+                                                </form>
+
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr class="bg-white dark:bg-gray-800">
+                                        <td colspan="7" class="px-6 py-4 font-medium text-center text-gray-900 border dark:text-white">
+                                            No users found.
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {{-- Pagination --}}
+                    @if ($users->hasPages())
+                        <div class="p-6">
+                            {{ $users->links() }}
+                        </div>
+                    @endif
+
+                </div>
             </div>
         </div>
     </div>
-</x-app-layout>
+@endsection

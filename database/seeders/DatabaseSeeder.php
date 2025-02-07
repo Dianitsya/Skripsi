@@ -12,19 +12,23 @@ class DatabaseSeeder extends Seeder
      * Run the database seeds.
      */
     public function run(): void
-    {
-        User::factory()->create([
-            'name'=> 'Admin',
-            'email'=> 'admin@admin.com',
-            'is_admin'=> true,
-        ]);
-        User::factory()->create([
-            'name'=> 'Dianitasya Ananda Masta',
-            'email'=> 'dianitasyanandamasta@gmail.com',
-            'is_admin'=> true,
-        ]);
+{
+    // Buat users dulu sebelum todos
+    User::factory()->create([
+        'name'=> 'Admin',
+        'email'=> 'admin@admin.com',
+        'is_admin'=> true,
+    ]);
 
-       User::factory(100)->create();
-       Todo::factory(500)->create();
-    }
-}
+    User::factory()->create([
+        'name'=> 'Dianitasya Ananda Masta',
+        'email'=> 'dianitasyanandamasta@gmail.com',
+        'is_admin'=> true,
+    ]);
+
+    // Buat user dummy lainnya
+    User::factory(100)->create();
+
+    // Setelah semua user terbuat, baru buat todos
+    Todo::factory(500)->create();
+}}
