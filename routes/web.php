@@ -79,6 +79,7 @@ Route::middleware('auth')->group(function () {
             Route::get('/{module}/edit', [ModuleController::class, 'edit'])->name('module.edit'); // Edit modul
             Route::patch('/{module}', [ModuleController::class, 'update'])->name('module.update'); // Update modul
             Route::delete('/{module}', [ModuleController::class, 'destroy'])->name('module.destroy'); // Hapus modul
+            Route::get('/{module}', [ModuleController::class, 'show'])->name('module.show');
         });
     });
 });

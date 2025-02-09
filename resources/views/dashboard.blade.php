@@ -9,34 +9,33 @@
     <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
         @foreach($modules as $module)
         <div class="p-5 transition-transform transform bg-white border border-gray-200 rounded-lg shadow-lg hover:-translate-y-2 hover:shadow-xl">
-            <!-- Judul Modul -->
-            <h3 class="mb-2 text-xl font-semibold text-gray-800">{{ $module->title }}</h3>
-
-            <!-- Kategori -->
-            <p class="text-sm text-gray-500">Kategori: {{ $module->category->name }}</p>
-
-            <!-- Deskripsi -->
-            <p class="mt-2 text-gray-700">{{ Str::limit($module->description, 100) }}</p>
-
             <!-- Gambar Modul -->
-            <div class="mt-3">
-                @if($module->image)
-                <img src="{{ Storage::url($module->image) }}" alt="Module Image" class="object-cover w-full h-40 rounded-md shadow-md">
+            <div class="flex justify-center">
+                @if($module->image_path)
+                    <img src="{{ asset('storage/' . $module->image_path) }}" alt="Module Image" class="object-cover w-32 h-32 rounded-lg shadow">
                 @else
-                    <div class="flex items-center justify-center w-full h-40 bg-gray-200 rounded-md">
-                        <span class="text-gray-500">No Image</span>
+                    <div class="flex items-center justify-center w-32 h-32 text-gray-400 bg-gray-200 rounded-lg">
+                        No Image
                     </div>
                 @endif
             </div>
 
-            <!-- File Download -->
-            <div class="mt-4">
-                @if($module->file)
-                <a href="{{ Storage::url($module->file) }}" target="_blank" class="px-3 py-2 text-white transition bg-blue-500 rounded-md hover:bg-blue-600">
-                    Download File
-                </a>
+            <!-- Judul Modul -->
+            <h3 class="mt-4 text-xl font-semibold text-center text-gray-800">{{ $module->title }}</h3>
+
+            <!-- Kategori -->
+            <p class="text-sm text-center text-gray-500">Kategori: {{ $module->category->name }}</p>
+
+            <!-- Deskripsi -->
+            <p class="mt-2 text-center text-gray-700">{{ Str::limit($module->description, 100) }}</p>
+
+            <!-- File Preview & Download -->
+            <div class="mt-4 text-center">
+                @if($module->file_path)
+                <a href="{{ route('module.show', $module->id) }}" class="block text-blue-500 hover:underline">📖 Lihat Materi</a>
+                <a href="{{ route('module.show', $module->id) }}" download class="block mt-2 text-green-500 hover:underline">⬇️ Download</a>
                 @else
-                    <span class="text-gray-500">No File Available</span>
+                    <span class="text-gray-400">No File</span>
                 @endif
             </div>
         </div>
