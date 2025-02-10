@@ -34,6 +34,7 @@
                 @if($module->file_path)
                 <a href="{{ route('module.show', $module->id) }}" class="block text-blue-500 hover:underline">📖 Lihat Materi</a>
                 <a href="{{ route('module.show', $module->id) }}" download class="block mt-2 text-green-500 hover:underline">⬇️ Download</a>
+                <a href="{{ route('tasks.index') }}" class="block mt-2 text-blue-500 hover:underline">📋 Lihat Daftar Tugas</a>
                 @else
                     <span class="text-gray-400">No File</span>
                 @endif

@@ -7,6 +7,8 @@ use App\Http\Controllers\ModuleController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\TaskController;
+use App\Http\Controllers\FeedbackController; // Tambahkan ini!
 
 /*
 |--------------------------------------------------------------------------
@@ -25,7 +27,6 @@ Route::get('/', function () {
 
 // Dashboard untuk pengguna yang login
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-
 
 // Route untuk pengguna yang sudah login
 Route::middleware('auth')->group(function () {
@@ -49,6 +50,11 @@ Route::middleware('auth')->group(function () {
         Route::delete('/{todo}', [TodoController::class, 'destroy'])->name('todo.destroy');
         Route::delete('/', [TodoController::class, 'destroyCompleted'])->name('todo.deleteallcompleted');
     });
+
+    // 🔹 Route untuk User Biasa (Bisa Kirim Tugas & Feedback)
+    Route::resource('tasks', TaskController::class);
+    Route::post('/tasks/{task}/submit', [TaskController::class, 'submitAnswer'])->name('tasks.submit');
+    Route::post('tasks/{task}/feedback', [FeedbackController::class, 'store'])->name('tasks.feedback.store');
 
     // 🔹 Admin Routes (Hanya Admin yang Bisa CRUD Modul & Kelola User)
     Route::middleware('admin')->group(function () {
