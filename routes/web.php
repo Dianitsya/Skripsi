@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
 use App\Http\Controllers\TodoController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ModuleController;
@@ -8,19 +9,8 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\TaskController;
-use App\Http\Controllers\FeedbackController; // Tambahkan ini!
+use App\Http\Controllers\FeedbackController;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Semua route aplikasi didefinisikan di sini.
-| Ada middleware `auth` untuk pengguna login dan `admin` untuk admin.
-|
-*/
-
-// Halaman utama
 Route::get('/', function () {
     return view('welcome');
 });
@@ -31,14 +21,14 @@ Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard
 // Route untuk pengguna yang sudah login
 Route::middleware('auth')->group(function () {
 
-    // 🔹 Profile Management
+    // Profile Management
     Route::prefix('profile')->group(function () {
         Route::get('/', [ProfileController::class, 'edit'])->name('profile.edit');
         Route::patch('/', [ProfileController::class, 'update'])->name('profile.update');
         Route::delete('/', [ProfileController::class, 'destroy'])->name('profile.destroy');
     });
 
-    // 🔹 Todo Management
+    // Todo Management (Optional, can be removed if not needed)
     Route::prefix('todo')->group(function () {
         Route::get('/', [TodoController::class, 'index'])->name('todo.index');
         Route::get('/create', [TodoController::class, 'create'])->name('todo.create');
@@ -51,15 +41,31 @@ Route::middleware('auth')->group(function () {
         Route::delete('/', [TodoController::class, 'destroyCompleted'])->name('todo.deleteallcompleted');
     });
 
-    // 🔹 Route untuk User Biasa (Bisa Kirim Tugas & Feedback)
+    // Task & Feedback Routes
     Route::resource('tasks', TaskController::class);
     Route::post('/tasks/{task}/submit', [TaskController::class, 'submitAnswer'])->name('tasks.submit');
     Route::post('tasks/{task}/feedback', [FeedbackController::class, 'store'])->name('tasks.feedback.store');
+    Route::delete('tasks/{task}/feedback/{feedback}', [FeedbackController::class, 'destroy'])->name('tasks.feedback.delete');
 
-    // 🔹 Admin Routes (Hanya Admin yang Bisa CRUD Modul & Kelola User)
+    // API Notifications for Logged-in Users
+    Route::get('/api/notifications', function (Request $request) {
+        $notifications = Auth::user()->notifications()->latest()->take(5)->get();
+
+        $formattedNotifications = $notifications->map(function ($notification) {
+            return [
+                'title' => $notification->data['title'],
+                'url' => $notification->data['url'],
+                'time' => $notification->created_at->diffForHumans(),
+            ];
+        });
+
+        return response()->json(['notifications' => $formattedNotifications]);
+    })->name('notifications.index');
+
+    // Admin Routes (Only accessible by admins)
     Route::middleware('admin')->group(function () {
 
-        // 📌 User Management
+        // User Management
         Route::prefix('user')->group(function () {
             Route::get('/', [UserController::class, 'index'])->name('user.index');
             Route::delete('/{user}', [UserController::class, 'destroy'])->name('user.destroy');
@@ -67,7 +73,7 @@ Route::middleware('auth')->group(function () {
             Route::patch('/{user}/removeadmin', [UserController::class, 'removeadmin'])->name('user.removeadmin');
         });
 
-        // 📌 Kategori Management (Hanya Admin)
+        // Category Management
         Route::prefix('category')->group(function () {
             Route::get('/', [CategoryController::class, 'index'])->name('category.index');
             Route::get('/create', [CategoryController::class, 'create'])->name('category.create');
@@ -77,18 +83,20 @@ Route::middleware('auth')->group(function () {
             Route::delete('/{category}', [CategoryController::class, 'destroy'])->name('category.destroy');
         });
 
-        // 📌 Modul Management (Hanya Admin)
+        // Module Management
         Route::prefix('module')->group(function () {
-            Route::get('/', [ModuleController::class, 'index'])->name('module.index'); // List semua modul
-            Route::get('/create', [ModuleController::class, 'create'])->name('module.create'); // Form tambah modul
-            Route::post('/store', [ModuleController::class, 'store'])->name('module.store'); // Simpan modul
-            Route::get('/{module}/edit', [ModuleController::class, 'edit'])->name('module.edit'); // Edit modul
-            Route::patch('/{module}', [ModuleController::class, 'update'])->name('module.update'); // Update modul
-            Route::delete('/{module}', [ModuleController::class, 'destroy'])->name('module.destroy'); // Hapus modul
+            Route::get('/', [ModuleController::class, 'index'])->name('module.index');
+            Route::get('/create', [ModuleController::class, 'create'])->name('module.create');
+            Route::post('/store', [ModuleController::class, 'store'])->name('module.store');
+            Route::get('/{module}/edit', [ModuleController::class, 'edit'])->name('module.edit');
+            Route::patch('/{module}', [ModuleController::class, 'update'])->name('module.update');
+            Route::delete('/{module}', [ModuleController::class, 'destroy'])->name('module.destroy');
             Route::get('/{module}', [ModuleController::class, 'show'])->name('module.show');
         });
     });
+
+    // Task Delete Route (Admin Only)
+    Route::delete('/tasks/{task}', [TaskController::class, 'destroy'])->name('tasks.destroy');
 });
 
-// Load route autentikasi Laravel Breeze atau Jetstream
 require __DIR__ . '/auth.php';

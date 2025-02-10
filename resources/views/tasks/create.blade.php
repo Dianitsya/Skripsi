@@ -25,6 +25,12 @@
                 <textarea name="description" class="w-full p-2 border rounded focus:ring focus:ring-blue-300" required></textarea>
             </div>
 
+            <!-- Input Deadline -->
+            <div class="mb-4">
+                <label for="deadline" class="block mb-1 text-sm font-semibold">Deadline:</label>
+                <input type="datetime-local" name="deadline" class="w-full p-2 border rounded focus:ring focus:ring-blue-300" required>
+            </div>
+
             <!-- Input Upload File -->
             <div class="mb-4">
                 <label for="file" class="block mb-1 text-sm font-semibold">Upload File (Opsional):</label>

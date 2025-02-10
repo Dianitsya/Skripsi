@@ -3,6 +3,10 @@
 @section('content')
 <div class="container p-6 mx-auto bg-white rounded-lg shadow-md">
     <h1 class="mb-4 text-3xl font-bold text-gray-800">{{ $task->title }}</h1>
+
+    <!-- Menampilkan Deadline -->
+    <p class="text-gray-500">Deadline: {{ \Carbon\Carbon::parse($task->deadline)->format('d M Y, H:i') }}</p>
+
     <p class="text-gray-700">{{ $task->description }}</p>
 
     @if ($task->file_path)
@@ -67,6 +71,11 @@
                 <div class="p-4 mt-3 border rounded bg-gray-50">
                     <p class="font-medium">{{ $feedback->user->name }}:</p>
                     <p class="text-gray-700">{{ $feedback->comment }}</p>
+                    <form action="{{ route('tasks.feedback.delete', [$task->id, $feedback->id]) }}" method="POST" class="inline-block">
+                        @csrf
+                        @method('DELETE') <!-- Menambahkan method DELETE -->
+                        <button type="submit" class="text-red-500 hover:underline">Hapus</button>
+                    </form>
                 </div>
             @endforeach
         </div>
