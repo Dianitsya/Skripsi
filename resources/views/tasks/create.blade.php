@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container p-6 mx-auto">
+<div class="container p-6 mx-auto mt-8">
     <div class="flex items-center justify-between mb-6">
         <h1 class="text-2xl font-bold">Buat Tugas Baru</h1>
         <a href="{{ route('tasks.index') }}" class="px-4 py-2 text-white bg-green-500 rounded hover:bg-green-600">

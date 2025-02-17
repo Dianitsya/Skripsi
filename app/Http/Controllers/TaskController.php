@@ -61,6 +61,10 @@ class TaskController extends Controller
 
     public function submitAnswer(Request $request, $taskId)
     {
+        if (Auth::user()->is_admin) {
+            return redirect()->back()->with('error', 'Admin tidak dapat mengumpulkan tugas.');
+        }
+
         $request->validate([
             'answer_file' => 'required|file|mimes:pdf,doc,docx,ppt,pptx|max:2048',
         ]);
@@ -75,6 +79,7 @@ class TaskController extends Controller
 
         return redirect()->back()->with('success', 'Jawaban berhasil dikumpulkan!');
     }
+
     public function destroy($id)
     {
         // Temukan task berdasarkan ID

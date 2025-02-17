@@ -43,7 +43,12 @@ Route::middleware('auth')->group(function () {
 
     // Task & Feedback Routes
     Route::resource('tasks', TaskController::class);
-    Route::post('/tasks/{task}/submit', [TaskController::class, 'submitAnswer'])->name('tasks.submit');
+
+    // Hanya user biasa yang bisa submit jawaban
+    Route::middleware('user')->group(function () {
+        Route::post('/tasks/{task}/submit', [TaskController::class, 'submitAnswer'])->name('tasks.submit');
+    });
+
     Route::post('tasks/{task}/feedback', [FeedbackController::class, 'store'])->name('tasks.feedback.store');
     Route::delete('tasks/{task}/feedback/{feedback}', [FeedbackController::class, 'destroy'])->name('tasks.feedback.delete');
 
