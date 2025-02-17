@@ -22,7 +22,7 @@
             <thead class="bg-gray-100">
                 <tr>
                     <th class="px-6 py-3 border-b">No</th>
-                    <th class="px-6 py-3 text-left border-b">Name</th>
+                    <th class="px-6 py-3 text-left border-b">Categories</th>
                     <th class="px-6 py-3 border-b">Actions</th>
                 </tr>
             </thead>
