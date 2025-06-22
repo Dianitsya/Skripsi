@@ -17,3 +17,15 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+Route::middleware('auth:sanctum')->get('/notifications', function (Request $request) {
+    $notifications = Auth::user()->unreadNotifications->map(function ($notification) {
+        return [
+            'id' => $notification->id,
+            'title' => $notification->data['body'] ?? 'Notifikasi baru',
+            'url' => $notification->data['url'] ?? '#',
+            'time' => $notification->created_at->diffForHumans(),
+        ];
+    });
+
+    return response()->json(['notifications' => $notifications]);
+});

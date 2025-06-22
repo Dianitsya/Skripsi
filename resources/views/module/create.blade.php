@@ -24,10 +24,6 @@
         <label for="file" class="block mt-3 text-sm font-medium text-gray-700">Upload File (PDF, Word, PPT)</label>
         <input id="file" type="file" name="file" class="block w-full p-2 mt-1 border rounded-md" accept=".pdf,.doc,.docx,.ppt,.pptx">
 
-        <!-- Upload Gambar -->
-        <label for="image" class="block mt-3 text-sm font-medium text-gray-700">Upload Gambar (JPG, JPEG, PNG)</label>
-        <input id="image" type="file" name="image" class="block w-full p-2 mt-1 border rounded-md" accept=".jpg,.jpeg,.png">
-
         <!-- Pesan error -->
         <p id="error-message" class="hidden mt-2 text-sm text-red-500"></p>
 
@@ -41,11 +37,9 @@
 <script>
     function validateFile() {
         let fileInput = document.getElementById("file");
-        let imageInput = document.getElementById("image");
         let errorMessage = document.getElementById("error-message");
 
         let allowedFileExtensions = ["pdf", "doc", "docx", "ppt", "pptx"];
-        let allowedImageExtensions = ["jpg", "jpeg", "png"];
 
         // Validasi file dokumen
         if (fileInput.files.length > 0) {
@@ -60,24 +54,6 @@
 
             if (file.size > 5 * 1024 * 1024) { // Maks 5MB
                 errorMessage.innerText = "Ukuran file terlalu besar! Maksimal 5MB.";
-                errorMessage.classList.remove("hidden");
-                return false;
-            }
-        }
-
-        // Validasi gambar
-        if (imageInput.files.length > 0) {
-            let image = imageInput.files[0];
-            let imageExt = image.name.split('.').pop().toLowerCase();
-
-            if (!allowedImageExtensions.includes(imageExt)) {
-                errorMessage.innerText = "Gambar hanya boleh dalam format JPG, JPEG, atau PNG!";
-                errorMessage.classList.remove("hidden");
-                return false;
-            }
-
-            if (image.size > 2 * 1024 * 1024) { // Maks 2MB
-                errorMessage.innerText = "Ukuran gambar terlalu besar! Maksimal 2MB.";
                 errorMessage.classList.remove("hidden");
                 return false;
             }

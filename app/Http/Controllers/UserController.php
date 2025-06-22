@@ -11,35 +11,30 @@ class UserController extends Controller
      * Menampilkan daftar pengguna.
      */
     public function index()
-    {
-        $search = request('search');
+{
+    $search = request('search');
 
-        $users = User::when($search, function ($query, $search) {
-            $query->where('name', 'like', '%' . $search . '%')
-                  ->orWhere('email', 'like', '%' . $search . '%');
-        })
-        ->orderBy('name')
-        ->where('id', '!=', 1)
-        ->paginate(10)
-        ->withQueryString();
+    $users = User::when($search, function ($query, $search) {
+        $query->where('name', 'like', '%' . $search . '%')
+              ->orWhere('email', 'like', '%' . $search . '%');
+    })
+    ->orderBy('name')
+    ->where('id', '!=', 1)
+    ->with([
+        'questionnaireResult' => function ($query) {
+            $query->select('user_id', 'minat');
+        },
+        'learningStyleResult' => function ($query) {
+            $query->select('user_id', 'dominant_style');
+        }
+    ])
+    ->paginate(10)
+    ->withQueryString();
 
-        // Update perhitungan total berdasarkan kolom yang digunakan
-        $totalUsers = User::count();
-        $totalAdmins = User::where('is_admin', true)->count();
-        // ATAU
-        // $totalAdmins = User::where('role', 'admin')->count();
-        $totalReguler = $totalUsers - $totalAdmins;
-        return view('user.index', compact('users', 'totalUsers', 'totalAdmins', 'totalReguler'));
-    }
 
-    public function makeAdmin(User $user)
-    {
-        $user->update(['is_admin' => true]);
-        // ATAU
-        // $user->update(['role' => 'admin']);
+    return view('user.index', compact('users'));
+}
 
-        return redirect()->back()->with('success', 'User has been promoted to Admin.');
-    }
 
     public function removeAdmin(User $user)
     {

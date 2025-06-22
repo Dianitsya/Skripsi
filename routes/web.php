@@ -1,75 +1,61 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Illuminate\Http\Request;
-use App\Http\Controllers\TodoController;
-use App\Http\Controllers\UserController;
-use App\Http\Controllers\ModuleController;
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\CategoryController;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\TaskController;
-use App\Http\Controllers\FeedbackController;
+use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\{
+    TodoController, UserController, ModuleController, ProfileController,
+    CategoryController, DashboardController, TaskController, FeedbackController,
+    QuestionnaireController
+};
+use App\Http\Controllers\KumpulanModulController;
 
+
+// 🔹 Landing Page
 Route::get('/', function () {
     return view('welcome');
 });
 
-// Dashboard untuk pengguna yang login
-Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+// 🔹 Authenticated Routes
+Route::middleware(['auth'])->group(function () {
+    // 🔹 Dashboard
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-// Route untuk pengguna yang sudah login
-Route::middleware('auth')->group(function () {
+    // 🔹 Dashboard berdasarkan level
+    Route::get('/dashboard/beginner', [DashboardController::class, 'beginner'])->name('dashboard.beginner');
+    Route::get('/dashboard/intermediate', [DashboardController::class, 'intermediate'])->name('dashboard.intermediate');
+    Route::get('/dashboard/advanced', [DashboardController::class, 'advanced'])->name('dashboard.advanced');
 
-    // Profile Management
+    // 🔹 Dashboard Admin
+    Route::middleware('admin')->group(function () {
+        Route::get('/dashboard/admin', [DashboardController::class, 'admin'])->name('dashboard.admin');
+    });
+
+    // 🔹 Kuisioner
+    Route::prefix('questionnaire')->group(function () {
+        Route::get('questionnaire', [QuestionnaireController::class, 'show'])->name('questionnaire.show');
+        Route::post('questionnaire', [QuestionnaireController::class, 'store'])->name('questionnaire.store');
+
+        Route::get('questionnaire2', [QuestionnaireController::class, 'showLearningStyle'])->name('questionnaire2.show');
+        Route::post('questionnaire2', [QuestionnaireController::class, 'storeLearningStyle'])->name('questionnaire2.store');
+
+        Route::get('questionnaire_result', [QuestionnaireController::class, 'result'])->name('questionnaire.result');
+    });
+
+    // 🔹 Profile Management
     Route::prefix('profile')->group(function () {
         Route::get('/', [ProfileController::class, 'edit'])->name('profile.edit');
         Route::patch('/', [ProfileController::class, 'update'])->name('profile.update');
         Route::delete('/', [ProfileController::class, 'destroy'])->name('profile.destroy');
     });
 
-    // Todo Management (Optional, can be removed if not needed)
-    Route::prefix('todo')->group(function () {
-        Route::get('/', [TodoController::class, 'index'])->name('todo.index');
-        Route::get('/create', [TodoController::class, 'create'])->name('todo.create');
-        Route::post('/store', [TodoController::class, 'store'])->name('todo.store');
-        Route::get('/{todo}/edit', [TodoController::class, 'edit'])->name('todo.edit');
-        Route::patch('/{todo}', [TodoController::class, 'update'])->name('todo.update');
-        Route::patch('/{todo}/complete', [TodoController::class, 'complete'])->name('todo.complete');
-        Route::patch('/{todo}/incomplete', [TodoController::class, 'uncomplete'])->name('todo.uncomplete');
-        Route::delete('/{todo}', [TodoController::class, 'destroy'])->name('todo.destroy');
-        Route::delete('/', [TodoController::class, 'destroyCompleted'])->name('todo.deleteallcompleted');
-    });
-
-    // Task & Feedback Routes
-    Route::resource('tasks', TaskController::class);
-
-    // Hanya user biasa yang bisa submit jawaban
+    // 🔹 Module Routes
     Route::middleware('user')->group(function () {
-        Route::post('/tasks/{task}/submit', [TaskController::class, 'submitAnswer'])->name('tasks.submit');
+        Route::get('/modules', [ModuleController::class, 'index'])->name('modules.index');
+        Route::get('/modules/{module}', [ModuleController::class, 'show'])->name('modules.show');
     });
 
-    Route::post('tasks/{task}/feedback', [FeedbackController::class, 'store'])->name('tasks.feedback.store');
-    Route::delete('tasks/{task}/feedback/{feedback}', [FeedbackController::class, 'destroy'])->name('tasks.feedback.delete');
-
-    // API Notifications for Logged-in Users
-    Route::get('/api/notifications', function (Request $request) {
-        $notifications = Auth::user()->notifications()->latest()->take(5)->get();
-
-        $formattedNotifications = $notifications->map(function ($notification) {
-            return [
-                'title' => $notification->data['title'],
-                'url' => $notification->data['url'],
-                'time' => $notification->created_at->diffForHumans(),
-            ];
-        });
-
-        return response()->json(['notifications' => $formattedNotifications]);
-    })->name('notifications.index');
-
-    // Admin Routes (Only accessible by admins)
+    // 🔹 Admin Routes
     Route::middleware('admin')->group(function () {
-
         // User Management
         Route::prefix('user')->group(function () {
             Route::get('/', [UserController::class, 'index'])->name('user.index');
@@ -82,7 +68,7 @@ Route::middleware('auth')->group(function () {
         Route::prefix('category')->group(function () {
             Route::get('/', [CategoryController::class, 'index'])->name('category.index');
             Route::get('/create', [CategoryController::class, 'create'])->name('category.create');
-            Route::post('/store', [CategoryController::class, 'store'])->name('category.store');
+            Route::post('/', [CategoryController::class, 'store'])->name('category.store');
             Route::get('/{category}/edit', [CategoryController::class, 'edit'])->name('category.edit');
             Route::patch('/{category}', [CategoryController::class, 'update'])->name('category.update');
             Route::delete('/{category}', [CategoryController::class, 'destroy'])->name('category.destroy');
@@ -92,16 +78,17 @@ Route::middleware('auth')->group(function () {
         Route::prefix('module')->group(function () {
             Route::get('/', [ModuleController::class, 'index'])->name('module.index');
             Route::get('/create', [ModuleController::class, 'create'])->name('module.create');
-            Route::post('/store', [ModuleController::class, 'store'])->name('module.store');
+            Route::post('/', [ModuleController::class, 'store'])->name('module.store');
             Route::get('/{module}/edit', [ModuleController::class, 'edit'])->name('module.edit');
             Route::patch('/{module}', [ModuleController::class, 'update'])->name('module.update');
             Route::delete('/{module}', [ModuleController::class, 'destroy'])->name('module.destroy');
             Route::get('/{module}', [ModuleController::class, 'show'])->name('module.show');
         });
+        Route::middleware('admin')->group(function () {
+            Route::get('/kumpulan-modul', [KumpulanModulController::class, 'index'])->name('kumpulan_modul.index');
+        });
     });
-
-    // Task Delete Route (Admin Only)
-    Route::delete('/tasks/{task}', [TaskController::class, 'destroy'])->name('tasks.destroy');
 });
 
+// 🔹 Auth Routes
 require __DIR__ . '/auth.php';

@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class User extends Authenticatable
 {
@@ -18,10 +19,7 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
-        'name',
-        'email',
-        'password',
-        'is_admin',
+        'name', 'email', 'password', 'category_id', 'is_admin', 'minat', 'gaya_belajar'
     ];
 
     /**
@@ -52,4 +50,19 @@ class User extends Authenticatable
     // ATAU
     // return $this->role === 'admin';  // jika menggunakan role
 }
+public function category()
+{
+    return $this->belongsTo(Category::class, 'category_id');
+}
+
+public function questionnaireResult(): HasOne
+    {
+        return $this->hasOne(QuestionnaireResult::class, 'user_id');
+    }
+
+    public function learningStyleResult(): HasOne
+    {
+        return $this->hasOne(LearningStyleResult::class, 'user_id');
+    }
+
 }

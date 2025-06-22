@@ -5,11 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Module extends Model
+class KumpulanModul extends Model
 {
-    use HasFactory;
+    protected $table = 'modules'; // Menggunakan tabel 'modules' yang sudah ada
 
-    protected $fillable = ['category_id', 'title', 'description', 'file_path'];
+    protected $fillable = ['title', 'description', 'file_path', 'category_id'];
 
     public function category()
     {

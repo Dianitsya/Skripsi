@@ -11,13 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('feedback', function (Blueprint $table) {
+        Schema::create('questionnaires', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('task_id')->constrained()->onDelete('cascade');
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->text('comment');
+            $table->string('experience_level');
+            $table->string('favorite_language', 100);
+            $table->text('learning_motivation');
+            $table->text('biggest_challenge');
+            $table->text('additional_feedback')->nullable();
             $table->timestamps();
-        });
+    });
     }
 
     /**
@@ -25,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('feedback');
+        Schema::dropIfExists('questionnaires');
     }
 };

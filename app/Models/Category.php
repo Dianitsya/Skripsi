@@ -10,9 +10,14 @@ class Category extends Model
     use HasFactory;
 
     protected $fillable = ['name'];
+    protected $table = 'categories';
 
     public function modules()
     {
         return $this->hasMany(Module::class);
     }
+    public function questionnaires()
+{
+    return $this->hasMany(Questionnaire::class);
+}
 }
